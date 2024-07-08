@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Score Display Demo</title>
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+    html, body, .root {
+      height: 100%;
+    }
+  </style>
+  <link rel="stylesheet" href="./style/index.css" />
+  <link rel= "stylesheet" href= "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" >
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>  <!-- 1: Vue -->
+  <link rel="stylesheet" href="./score-display/score-display.css" />
+  <script src="./score-display/score-display.global.js"></script>  <!-- 2: Component script -->
+</head>
+<body>
+  <div id="root" class="root">
+    <h2>Score Display Demo</h2>
+    <p>Preview the score below.</p>
+
+    <div id="score-display-1" class="score-display-wrapper"></div>
+    <script>
+      Vue.createApp({
+        components: { ScoreDisplay },
+        template: `<ScoreDisplay src="./data/Proud Of You.mscz.wd/" canPlay hasAltTrack versionCode="5" />`
+      }).mount('#score-display-1')
+    </script>  <!-- 3: Manual mount -->
+
+    <p>(this is a buildless library)</p>
+    <p>Further text...</p>
+    <p>Further text...</p>
+    <p>Further text...</p>
+    <p>Further text...</p>
+    <p>Further text...</p>
+  </div>
+</body>
+</html>

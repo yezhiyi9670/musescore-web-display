@@ -1,0 +1,12 @@
+:root {
+  font-family: sans-serif;
+  background: #f9f9f9;
+}
+.root {
+  padding: 0 16px;
+}
+.root > *:not(.score-display-wrapper) {
+  max-width: 996px;
+  margin-left: auto;
+  margin-right: auto;
+}
