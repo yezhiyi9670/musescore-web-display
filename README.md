@@ -1,5 +1,7 @@
 # MuseScore Web Display
 
+> **This is not an officially supported/endoresed [MuseScore](https://musescore.org/) product.**
+
 ![screenshot](screenshot.png)
 
 > [Buy me a coffee](https://afdian.net/a/yezhiyi9670) if you like this work.
