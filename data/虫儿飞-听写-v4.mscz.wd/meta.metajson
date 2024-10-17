@@ -1,0 +1,65 @@
+{
+"metadata": {
+    "composer": "听写与改编\n叶E大帝, 2024-10-04\n(借助 StemRoller 与均衡器)",
+    "duration": 98,
+    "fileVersion": 440,
+    "hasHarmonies": "false",
+    "hasLyrics": "true",
+    "keysig": -1,
+    "lyrics": "黑 黑 的 天 空 低 垂， 亮 亮 的 繁 星 相 随； 虫 儿 飞， 虫 儿 飞， 你 在 思 念 谁？ 天 上 的 星 星 流 泪， 地 上 的 玫 瑰 枯 萎； 冷 风 吹， 冷 风 吹， 只 要 有 你 陪。 虫 儿 飞， 花 儿 睡， 一 双 又 一 对 才 美； 不 怕 天 黑， 只 怕 心 碎， 不 管 累 不 累， 也 不 管 东 南 西 北。",
+    "measures": 39,
+    "mscoreVersion": "4.4.2",
+    "pageFormat": {
+        "height": 297,
+        "twosided": "true",
+        "width": 210
+    },
+    "pages": 3,
+    "parts": [
+        {
+            "harmonyCount": 0,
+            "hasDrumStaff": "false",
+            "hasPitchedStaff": "true",
+            "hasTabStaff": "false",
+            "instrumentId": "voice",
+            "isVisible": "true",
+            "lyricCount": 83,
+            "name": "人声",
+            "program": 22
+        },
+        {
+            "harmonyCount": 0,
+            "hasDrumStaff": "false",
+            "hasPitchedStaff": "true",
+            "hasTabStaff": "false",
+            "instrumentId": "piano",
+            "isVisible": "true",
+            "lyricCount": 0,
+            "name": "钢琴",
+            "program": 2
+        }
+    ],
+    "poet": "原作\n虫儿飞\n作词/林夕  作曲/陈光荣",
+    "previousSource": "",
+    "subtitle": "（Test+v1）",
+    "tempo": 50,
+    "tempoText": "<b></b><font face=\"ScoreText\"></font><b><font face=\"Edwin\"></font> = 25</b>",
+    "textFramesData": {
+        "composers": [
+            "听写与改编\n叶E大帝, 2024-10-04\n(借助 StemRoller 与均衡器)"
+        ],
+        "poets": [
+            "原作\n虫儿飞\n作词/林夕  作曲/陈光荣"
+        ],
+        "subtitles": [
+            "（Test+v1）"
+        ],
+        "titles": [
+            "虫儿飞"
+        ]
+    },
+    "timesig": "2/2",
+    "title": "虫儿飞"
+}
+
+}

@@ -48,6 +48,12 @@
         }
         const vdoc = new DOMParser().parseFromString(props.page, 'image/svg+xml')
         vdoc.querySelector('svg>title').remove()
+        const backgroundElement = vdoc.querySelector(
+          'desc+path[fill="#ffffff"]'
+        )
+        if(backgroundElement) {
+          backgroundElement.remove()
+        }
         const svg = vdoc.querySelector('svg')
         return [
           svg.getAttribute('viewBox'),
@@ -606,10 +612,14 @@
           try {
             const meta = await response.json()
             if(token == loadToken.value) {
-              scoreMeta.value = meta
+              if(!('pages' in meta) && ('metadata' in meta)) {
+                scoreMeta.value = meta.metadata
+              } else {
+                scoreMeta.value = meta
+              }
 
               // Load pages
-              graphics.value = Array(meta.pages).fill(null)
+              graphics.value = Array(scoreMeta.value.pages).fill(null)
             }
           } catch(_err) {
             console.warn('meta.metajson load failed.', _err)

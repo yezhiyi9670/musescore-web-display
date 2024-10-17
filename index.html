@@ -23,22 +23,29 @@
 <body>
   <div id="root" class="root">
     <h2>Score Display Demo</h2>
-    <p>Preview the score below.</p>
+    <p>A simple showcase for MuseScore scores.</p>
 
+    <p>The score below is created with MuseScore 3.6.2.</p>
+    
     <div id="score-display-1" class="score-display-wrapper"></div>
     <script>
       Vue.createApp({
         components: { ScoreDisplay },
-        template: `<ScoreDisplay src="./data/Proud Of You.mscz.wd/" canPlay hasAltTrack versionCode="5" />`
+        template: `<ScoreDisplay src="./data/Proud Of You.mscz.wd/" canPlay hasAltTrack versionCode="8" />`
       }).mount('#score-display-1')
     </script>  <!-- 3: Manual mount -->
 
-    <p>(this is a buildless library)</p>
-    <p>Further text...</p>
-    <p>Further text...</p>
-    <p>Further text...</p>
-    <p>Further text...</p>
-    <p>Further text...</p>
+    <p>The score below is exported with MuseScore 4.4.2 without transparent background enabled.</p>
+
+    <div id="score-display-2" class="score-display-wrapper"></div>
+    <script>
+      Vue.createApp({
+        components: { ScoreDisplay },
+        template: `<ScoreDisplay src="./data/虫儿飞-听写-v4.mscz.wd/" canPlay />`
+      }).mount('#score-display-2')
+    </script>  <!-- 3: Manual mount -->
+
+    <p>&nbsp;</p>
   </div>
 </body>
 </html>

@@ -34,7 +34,7 @@ The main library is `score-display/score-display.global.js`, which exposes a glo
 | Property | Explanation |
 | - | - |
 | `src` | `string` \| URL to the directory containing the files of your score |
-| `versionCode` | `string?` \| Appears in query param while fetching files |
+| `versionCode` | `string?` \| Can be any string, appears in query param while fetching files |
 | `canPlay` | `boolean?` \| Whether to load audio `audio.ogg` and offer playback |
 | `hasAltTrack` | `boolean?` \| Whether to offer the no-vocal audio `audio-alt.ogg` |
 
@@ -53,7 +53,7 @@ Score Directory
 
 They can all be exported from MuseScore using the [command line interface](https://musescore.org/en/handbook/3/command-line-options).
 
-See also [the python script](./py-script/musescore-wd-export.py) that automatically exports all files (except `audio-alt.ogg`, which must be exported manually).
+See also [the python scripts](./py-script/) that automatically exports all files (except `audio-alt.ogg`, which must be exported manually).
 
 ### Integrating into existing HTML
 
