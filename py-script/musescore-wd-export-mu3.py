@@ -2,6 +2,7 @@ import os
 import shutil
 from sys import argv
 import subprocess
+import json
 
 EXEC_PATH = "D:/Program Files/MuseScore 3/bin/MuseScore3.exe"
 
@@ -24,7 +25,7 @@ dst_dir_name = filename + '.wd/'
 if os.path.exists(dst_dir_name):
     if os.path.isfile(dst_dir_name):
         exit(1)
-    # shutil.rmtree(dst_dir_name)
+    shutil.rmtree(dst_dir_name)
 
 os.makedirs(dst_dir_name, exist_ok=True)
 
@@ -35,7 +36,17 @@ print("- Generating SVG graphics")
 subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'graphic.svg', filename])
 
 print("- Generating OGG audio")
-subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'audio.ogg', filename])
+json.dump([
+	{
+		'in': filename,
+		'out': [
+			dst_dir_name + 'audio.ogg',
+			[ dst_dir_name + 'audio-', '.ogg' ]
+		]
+	}
+], open(dst_dir_name + 'audio-jobs.json', 'w'))
+subprocess.check_output([EXEC_PATH, '--job', dst_dir_name + 'audio-jobs.json'])
+os.unlink(dst_dir_name + 'audio-jobs.json')
 
 print("- Generating measure positions")
 subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'measures.mpos', filename])

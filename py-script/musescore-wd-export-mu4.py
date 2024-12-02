@@ -2,6 +2,7 @@ import os
 import shutil
 from sys import argv
 import subprocess
+import json
 
 EXEC_PATH = "D:/Program Files/MuseScore 4/bin/MuseScore4.exe"
 
@@ -37,11 +38,20 @@ print("- Generating SVG graphics")
 subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'graphic.svg', filename])
 
 print("- Generating OGG audio")
-subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'audio.ogg', filename])
+json.dump([
+	{
+		'in': filename,
+		'out': [
+			dst_dir_name + 'audio.ogg',
+			[ dst_dir_name + 'audio-', '.ogg' ]
+		]
+	}
+], open(dst_dir_name + 'audio-jobs.json', 'w'))
+subprocess.check_output([EXEC_PATH, '--job', dst_dir_name + 'audio-jobs.json'])
+os.unlink(dst_dir_name + 'audio-jobs.json')
 
 print("- Generating measure positions")
 subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'measures.mpos', filename])
 
 print("- Generating segment positions")
 subprocess.check_output([EXEC_PATH, '--export-to', dst_dir_name + 'segments.spos', filename])
-

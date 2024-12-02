@@ -53,7 +53,7 @@ Score Directory
 
 They can all be exported from MuseScore using the [command line interface](https://musescore.org/en/handbook/3/command-line-options).
 
-See also [the python scripts](./py-script/) that automatically exports all files (except `audio-alt.ogg`, which must be exported manually).
+See also [the python scripts](./py-script/) that automatically exports all files. The scripts exports the audio for ALL part scores in the form of `audio-%s.ogg` by default, so you may add a part score called `alt` to automatically generate `audio-alt.ogg`.
 
 ### Integrating into existing HTML
 
