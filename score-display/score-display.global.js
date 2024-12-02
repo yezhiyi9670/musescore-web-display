@@ -125,7 +125,7 @@
    * - The `pages` is an Array made of either `null` (unloaded), `false` (loading) or string (loaded).
    * - The `mposText` is the XML text file defining the positions of measures.
    * - The `current` is the current playback time, in seconds.
-   * - `@select` emits with the time in seconds when the user clicks on a measure.
+   * - `@select` emits with all the matching timestamps in seconds when the user clicks on a measure.
    */
   const PagesDisplay = {
     emits: ['select'],
@@ -262,12 +262,13 @@
       })
 
       function selectElement(elid) {
+        const ret = []
         for(let event of events.value) {
           if(event.elid == elid) {
-            ctx.emit('select', event.time)
-            break
+            ret.push(event.time)
           }
         }
+        ctx.emit('select', ret)
       }
 
       return { ref, innerRef, enableAutoScroll, zoomed, highlighterElid, elements, selectElement, toggleAutoScroll, toggleZoomed }
@@ -326,6 +327,7 @@
     setup(props, ctx) {
       if(props.refAudioApi) props.refAudioApi.value = {
         setCurrentTime: setProgress,
+        getCurrentTime: getProgress,
         playPause,
         addProgress,
         toggleAltTrack
@@ -441,6 +443,10 @@
         if(time < 0) time = 0
         audio.value.currentTime = time
         ctx.emit('timeChange', time)
+      }
+      function getProgress() {
+        if(!audio.value) return -1
+        return audio.value.currentTime
       }
       function addProgress(time) {
         if(!audio.value) return
@@ -566,8 +572,23 @@
       })
       const audioTime = Vue.ref(null)  // current audio time
       const refAudioApi = Vue.reactive({ value: null })
-      function selectTime(time) {
-        refAudioApi.value && refAudioApi.value.setCurrentTime(time + 0.0001)
+      function selectTimes(times) {
+        if(!refAudioApi.value || times.length == 0) {
+          return
+        }
+        let bestTime = -1, bestDiff = Infinity
+        // Pick the best matching timestamp
+        for(const time of times) {
+          let diff = time - refAudioApi.value.getCurrentTime()
+          if(diff < 0) {
+            diff = -diff * 1
+          }
+          if(diff < bestDiff) {
+            bestDiff = diff
+            bestTime = time
+          }
+        }
+        refAudioApi.value.setCurrentTime(bestTime)
       }
       function playPause() {
         refAudioApi.value && refAudioApi.value.playPause()
@@ -692,7 +713,7 @@
 
       return {
         scoreMeta, loaded, errored, graphics, mposText, audioSrc, audioTime,
-        refAudioApi, selectTime, playPause, addProgress, refPagesApi, handleExactKey, altAudioSrc
+        refAudioApi, selectTimes, playPause, addProgress, refPagesApi, handleExactKey, altAudioSrc
       }
     },
     components: { PagesDisplay, ScorePlayback },
@@ -711,7 +732,7 @@
           :pageFormat="scoreMeta ? scoreMeta.pageFormat : null"
           :mposText="mposText"
           :audioTime="audioTime"
-          @select="time => selectTime(time)"
+          @select="times => selectTimes(times)"
           :refPagesApi="refPagesApi"
         />
         <ScorePlayback
