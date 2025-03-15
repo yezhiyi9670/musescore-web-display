@@ -466,11 +466,23 @@
         }
       }
       function progressMouseDown(event) {
+        if(!audio.value) {
+          return
+        }
         tweakProgressOnBar(event)
+        const wasPlaying = !audio.value.paused
+        if(wasPlaying) {
+          audio.value.pause()
+        }
         document.addEventListener('mousemove', tweakProgressOnBar)
-        document.addEventListener('mouseup', () => {
+        function cleanup() {
           document.removeEventListener('mousemove', tweakProgressOnBar)
-        })
+          document.removeEventListener('mouseup', cleanup)
+          if(wasPlaying && !audio.value.ended) {
+            audio.value.play()
+          }
+        }
+        document.addEventListener('mouseup', cleanup)
       }
 
       return {
@@ -518,8 +530,8 @@
           </div>
         </div>
       </div>
-      <audio @canplay="loadedMain = true" ref="audioMain" />
-      <audio @canplay="loadedAlt = true" ref="audioAlt" />
+      <audio @canplay="loadedMain = true" ref="audioMain" preload="metadata" />
+      <audio @canplay="loadedAlt = true" ref="audioAlt" preload="metadata" />
     `
   }
 
