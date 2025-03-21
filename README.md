@@ -8,7 +8,7 @@
 
 This is a simple and elegant component allowing you create an interactive showcase of your score, similar to the score showcase seen on musescore.com. [See a working demo here](https://sparkslab.art/dictations/dict-proud-of-you/).
 
-This library uses [Vue](https://vuejs.org/) and the [Line Awesome icon font](https://icons8.com/line-awesome). It is deliberately made into a global and buildless library for easy integration with site builders like WordPress.
+This library uses [Vue](https://vuejs.org/), [Howler](https://github.com/goldfire/howler.js) and the [Line Awesome icon font](https://icons8.com/line-awesome). It is deliberately made into a global and buildless library for easy integration with site builders like WordPress.
 
 ## Features
 
@@ -59,11 +59,12 @@ See also [the python scripts](./py-script/) that automatically exports all files
 
 In particular, you need to add the following into your website:
 
-1. Line Awesome icon pack and Vue (global edition).
+1. Dependencies: Line Awesome icon pack, Vue (global edition) and Howler (global edition).
 
 ```html
 <link rel= "stylesheet" href= "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" >
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+<script src="https://unpkg.com/vue@3.4.31/dist/vue.global.js"></script>
 ```
 
 2. This library.

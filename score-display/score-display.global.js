@@ -120,7 +120,7 @@
 
   /**
    * Displays multiple pages.
-   * 
+   *
    * Spec:
    * - The `pages` is an Array made of either `null` (unloaded), `false` (loading) or string (loaded).
    * - The `mposText` is the XML text file defining the positions of measures.
@@ -323,7 +323,7 @@
       refAudioApi: [ null, Object ],
       altSrc: [ null, String ],
     },
-    emits: ['timeChange'],
+    emits: ['timeChange', 'focusMain'],
     setup(props, ctx) {
       if(props.refAudioApi) props.refAudioApi.value = {
         setCurrentTime: setProgress,
@@ -333,13 +333,43 @@
         toggleAltTrack
       }
 
-      const currentSrcMain = Vue.ref('')
       const loadedMain = Vue.ref(false)
-      const audioMain = Vue.ref(null)
+      const audioMain = Vue.computed(() => {
+        loadedMain.value = false
+        const self = new Howl({
+          src: [props.src],
+          preload: 'metadata',
+          onload: () => {
+            loadedMain.value = true
+          },
+          onend: () => {
+            // Ensure behavior consistency with web audio
+            self.pause()
+            self.seek(self.duration())
+          }
+        })
+        return self
+      })
 
-      const currentSrcAlt = Vue.ref('')
       const loadedAlt = Vue.ref(false)
-      const audioAlt = Vue.ref(null)
+      const audioAlt = Vue.computed(() => {
+        loadedAlt.value = false
+        const self = new Howl({
+          src: [props.altSrc],
+          preload: 'metadata',
+          onload: () => {
+            loadedAlt.value = true
+          },
+          onend: () => {
+            // Ensure behavior consistency with web audio
+            self.pause()
+            self.seek(self.duration())
+          }
+        })
+        return self
+      })
+
+      console.log(audioMain.value)
       
       const progressbar = Vue.ref(null)
       const isPlaying = Vue.ref(false)
@@ -360,39 +390,21 @@
         if(props.altSrc == null) return
         if(!audio.value || !audioAlt.value) return
 
-        audioTheOther.value.currentTime = audio.value.currentTime
-        if(!audio.value.paused) {
+        audioTheOther.value.seek(audio.value.seek())
+        if(audio.value.playing()) {
           audio.value.pause()
           audioTheOther.value.play()
         }
         altActive.value = !altActive.value
       }
 
-      function checkAudioLoad(srcProp, currentSrc, audio, loaded) {
-        if(currentSrc.value == srcProp) {
-          return
-        }
-        if(audio.value) {
-          currentSrc.value = srcProp
-          loaded.value = false
-          audio.value.src = currentSrc.value
-          audio.value.load()
-        }
-      }
-      Vue.watchPostEffect(() => {
-        checkAudioLoad(props.src, currentSrcMain, audioMain, loadedMain)
-        if(props.altSrc != null) {
-          checkAudioLoad(props.altSrc, currentSrcAlt, audioAlt, loadedAlt)
-        }
-      })
-
       function reportCurrent() {
         if(!audio.value) {
           ctx.emit('timeChange', null)
         }
-        if(!audio.value.paused) {
+        if(audio.value.playing()) {
           // Keep persistent reporting while playing
-          ctx.emit('timeChange', audio.value.currentTime ?? null)
+          ctx.emit('timeChange', audio.value.seek() ?? null)
         }
       }
 
@@ -401,31 +413,35 @@
 
         if(!audio.value) return
         if(!loaded.value) return  // Only update state when loaded
-        isPlaying.value = !audio.value.paused
+        isPlaying.value = audio.value.playing()
 
-        const bufferRanges = audio.value.buffered
-        const currentTime = audio.value.currentTime
-        const duration = audio.value.duration
+        // const bufferRanges = audio.value.buffered
+        const currentTime = audio.value.seek()
+        const duration = audio.value.duration()
         const ratio = currentTime / duration
         if(ratio == ratio) {
           progressRatio.value = ratio
         }
-        let bufferedTime = 0
-        for(let i = 0; i < bufferRanges.length; i++) {
-          if(bufferRanges.start(i) <= currentTime && bufferRanges.end(i) >= currentTime) {
-            bufferedTime = bufferRanges.end(i)
-            break
-          }
-        }
-        const bRatio = bufferedTime / duration
-        if(bRatio == bRatio) {
-          loadedRatio.value = bRatio
-        }
+        // let bufferedTime = 0
+        // for(let i = 0; i < bufferRanges.length; i++) {
+        //   if(bufferRanges.start(i) <= currentTime && bufferRanges.end(i) >= currentTime) {
+        //     bufferedTime = bufferRanges.end(i)
+        //     break
+        //   }
+        // }
+        // const bRatio = bufferedTime / duration
+        // if(bRatio == bRatio) {
+        //   loadedRatio.value = bRatio
+        // }
       })
 
       function playPause() {
         if(!audio.value || !loaded.value) return
-        if(audio.value.paused) {
+        if(!audio.value.playing()) {
+          if(audio.value.seek() == audio.value.duration()) {
+            // Ensure behavior consistency with web audio
+            audio.value.seek(0)
+          }
           audio.value.play()
         } else {
           audio.value.pause()
@@ -434,23 +450,23 @@
       function stop() {
         if(!audio.value) return
         audio.value.pause()
-        audio.value.currentTime = 0
+        audio.value.seek(0)
         ctx.emit('timeChange', null)
       }
       function setProgress(time) {
         if(!audio.value) return
-        if(time > audio.value.duration) time = audio.value.duration
+        if(time > audio.value.duration()) time = audio.value.duration()
         if(time < 0) time = 0
-        audio.value.currentTime = time
+        audio.value.seek(time)
         ctx.emit('timeChange', time)
       }
       function getProgress() {
         if(!audio.value) return -1
-        return audio.value.currentTime
+        return audio.value.seek()
       }
       function addProgress(time) {
         if(!audio.value) return
-        let newTime = time + audio.value.currentTime
+        let newTime = time + audio.value.seek()
         setProgress(newTime)
       }
       function tweakProgressOnBar(event) {
@@ -460,17 +476,18 @@
         const mouseX = event.clientX
         const rect = progressbar.value.getBoundingClientRect()
         const ratio = (mouseX - rect.left) / (rect.right - rect.left)
-        const currentTime = ratio * audio.value.duration
+        const currentTime = ratio * audio.value.duration()
         if(currentTime == currentTime) {
           setProgress(currentTime)
         }
       }
       function progressMouseDown(event) {
+        ctx.emit('focusMain')
         if(!audio.value) {
           return
         }
         tweakProgressOnBar(event)
-        const wasPlaying = !audio.value.paused
+        const wasPlaying = audio.value.playing()
         if(wasPlaying) {
           audio.value.pause()
         }
@@ -478,7 +495,7 @@
         function cleanup() {
           document.removeEventListener('mousemove', tweakProgressOnBar)
           document.removeEventListener('mouseup', cleanup)
-          if(wasPlaying && !audio.value.ended) {
+          if(wasPlaying && audio.value.seek() < audio.value.duration()) {
             audio.value.play()
           }
         }
@@ -530,8 +547,6 @@
           </div>
         </div>
       </div>
-      <audio @canplay="loadedMain = true" ref="audioMain" preload="metadata" />
-      <audio @canplay="loadedAlt = true" ref="audioAlt" preload="metadata" />
     `
   }
 
@@ -539,7 +554,7 @@
 
   /**
    * The interactive score display.
-   * 
+   *
    * Spec:
    * - The `src` should point to a directory, with or without a trailing slash.
    * - The directory should include:
@@ -557,6 +572,8 @@
       versionCode: {type: String, required: false},
     },
     setup(props) {
+      const refMain = Vue.ref(null)
+      
       const versionCode = Vue.computed(() => {
         return props.versionCode ?? ''
       })
@@ -724,6 +741,7 @@
       })
 
       return {
+        refMain,
         scoreMeta, loaded, errored, graphics, mposText, audioSrc, audioTime,
         refAudioApi, selectTimes, playPause, addProgress, refPagesApi, handleExactKey, altAudioSrc
       }
@@ -732,6 +750,7 @@
     template: /*html*/`
       <div
         tabindex="0"
+        ref="refMain"
         class="slcwd-score-display"
         @keydown.space.exact.prevent="playPause"
         @keydown.left.exact.prevent="() => addProgress(-2)"
@@ -752,6 +771,7 @@
           :altSrc="altAudioSrc"
           :src="audioSrc"
           @timeChange="val => audioTime = val"
+          @focusMain="refMain && refMain.focus({preventScroll: true})"
           :refAudioApi="refAudioApi"
         />
       </div>
