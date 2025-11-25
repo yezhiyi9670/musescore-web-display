@@ -559,6 +559,8 @@
    * - The `src` should point to a directory, with or without a trailing slash.
    * - The directory should include:
    *   - `meta.metajson`, the score metadata.
+   *     - Could include a `wd_timeDelta` attribute (in seconds) to specify the length of the blank space
+   *       before the actual music. This value can also be overriden with the `timeDelta` prop.
    *   - `graphic-%d.svg`, the SVG of all pages.
    *   - Optionally `audio.ogg`, the reference audio. Set `canPlay` to `true` in order to play audio.
    *   - Optionally `audio-alt.ogg`, the no-vocal audio. Set `hasAltTrack` to `true` in order to enable it.
@@ -570,6 +572,7 @@
       canPlay: {type: Boolean, required: false},
       hasAltTrack: {type: Boolean, required: false},
       versionCode: {type: String, required: false},
+      timeDelta: {type: Number, required: false},
     },
     setup(props) {
       const refMain = Vue.ref(null)
@@ -617,7 +620,9 @@
             bestTime = time
           }
         }
-        refAudioApi.value.setCurrentTime(bestTime)
+        // Add an eps to ensure that the highlight end up where we click
+        const ERROR_EPS_TIME = 1e-6
+        refAudioApi.value.setCurrentTime(bestTime == 0 ? bestTime : (bestTime + ERROR_EPS_TIME))
       }
       function playPause() {
         refAudioApi.value && refAudioApi.value.playPause()
@@ -740,9 +745,14 @@
         }
       })
 
+      // Time delta
+      const finalTimeDelta = Vue.computed(() => {
+        return props.timeDelta ?? scoreMeta.value?.wd_timeDelta ?? 0
+      })
+
       return {
         refMain,
-        scoreMeta, loaded, errored, graphics, mposText, audioSrc, audioTime,
+        scoreMeta, loaded, errored, graphics, mposText, audioSrc, audioTime, finalTimeDelta,
         refAudioApi, selectTimes, playPause, addProgress, refPagesApi, handleExactKey, altAudioSrc
       }
     },
@@ -762,8 +772,8 @@
           :pages="graphics"
           :pageFormat="scoreMeta ? scoreMeta.pageFormat : null"
           :mposText="mposText"
-          :audioTime="audioTime"
-          @select="times => selectTimes(times)"
+          :audioTime="Math.max(0, audioTime - finalTimeDelta)"
+          @select="times => selectTimes(times.map(item => item == 0 ? item : (item + finalTimeDelta)))"
           :refPagesApi="refPagesApi"
         />
         <ScorePlayback
