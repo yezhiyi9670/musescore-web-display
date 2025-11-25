@@ -772,7 +772,7 @@
           :pages="graphics"
           :pageFormat="scoreMeta ? scoreMeta.pageFormat : null"
           :mposText="mposText"
-          :audioTime="Math.max(0, audioTime - finalTimeDelta)"
+          :audioTime="audioTime != null ? Math.max(0, audioTime - finalTimeDelta) : audioTime"
           @select="times => selectTimes(times.map(item => item == 0 ? item : (item + finalTimeDelta)))"
           :refPagesApi="refPagesApi"
         />
